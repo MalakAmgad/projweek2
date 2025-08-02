@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-hello-world
+  labels:
+    app: nodejs-hello-world
+spec:
+  replicas: 3  
+  selector:
+    matchLabels:
+      app: nodejs-hello-world
+  #  rolling updates (Step 4) ---
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxSurge: 1
+  #     maxUnavailable: 0
+  
+  template:
+    metadata:
+      labels:
+        app: nodejs-hello-world
+    spec:
+      containers:
+      - name: nodejs-app
+        image: node:18-alpine
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo 'const http = require("http");
+          http.createServer((req, res) => {
+            res.writeHead(200, {"Content-Type": "text/plain"});
+            res.end("Hello World! (Step 1 - Basic Version)\\n");
+          }).listen(3000, "0.0.0.0");' > server.js
+          node server.js
+        ports:
+        - containerPort: 3000
+        #  PVC (Step 2) 
+        # volumeMounts:
+        # - name: data-storage
+        #   mountPath: /data
+        
+      #  PVC (Step 2)
+      # volumes:
+      # - name: data-storage
+      #   persistentVolumeClaim:
+      #     claimName: nodejs-pvc  
+      
